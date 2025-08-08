@@ -89,7 +89,7 @@ const CommandPalette = () => {
       // Handle task selection
       console.log(`Opening task: ${command.label}`);
     }
-    
+
     setIsOpen(false);
     setSearchQuery('');
   };
@@ -143,24 +143,21 @@ const CommandPalette = () => {
                 {commands.map((command, index) => {
                   const globalIndex = filteredCommands.indexOf(command);
                   const isSelected = globalIndex === selectedIndex;
-                  
+
                   return (
                     <button
                       key={command.id}
                       onClick={() => handleCommandSelect(command)}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-secondary-50 transition-colors duration-150 ${
-                        isSelected ? 'bg-primary-50 border-r-2 border-primary' : ''
-                      }`}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-secondary-50 transition-colors duration-150 ${isSelected ? 'bg-primary-50 border-r-2 border-primary' : ''
+                        }`}
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                        isSelected ? 'bg-primary text-white' : 'bg-secondary-100 text-secondary-600'
-                      }`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-primary text-white' : 'bg-secondary-100 text-secondary-600'
+                        }`}>
                         <Icon name={command.icon} size={16} />
                       </div>
                       <div className="flex-1">
-                        <p className={`text-sm font-medium ${
-                          isSelected ? 'text-primary' : 'text-text-primary'
-                        }`}>
+                        <p className={`text-sm font-medium ${isSelected ? 'text-primary' : 'text-text-primary'
+                          }`}>
                           {command.label}
                         </p>
                         {command.type && (
@@ -197,15 +194,15 @@ const CommandPalette = () => {
             <div className="flex items-center space-x-1">
               <span>Powered by</span>
               <Icon name="Zap" size={12} color="#2563EB" />
-              <span className="font-medium text-primary">TaskFlow</span>
+              <span className="font-medium text-primary">Kolabo</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Click outside to close */}
-      <div 
-        className="absolute inset-0 -z-10" 
+      <div
+        className="absolute inset-0 -z-10"
         onClick={() => setIsOpen(false)}
       />
     </div>

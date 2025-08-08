@@ -1,107 +1,143 @@
-# React
+# Kolabo
 
-A modern React-based project utilizing the latest frontend technologies and tools for building responsive web applications.
+A modern project management and collaboration platform built with React, designed for teams to manage tasks, sprints, and workflows efficiently.
 
-## 🚀 Features
+## Features
 
-- **React 18** - React version with improved rendering and concurrent features
+- **React 18** - Latest React version with improved rendering and concurrent features
 - **Vite** - Lightning-fast build tool and development server
-- **Redux Toolkit** - State management with simplified Redux setup
-- **TailwindCSS** - Utility-first CSS framework with extensive customization
-- **React Router v6** - Declarative routing for React applications
-- **Data Visualization** - Integrated D3.js and Recharts for powerful data visualization
-- **Form Management** - React Hook Form for efficient form handling
-- **Animation** - Framer Motion for smooth UI animations
-- **Testing** - Jest and React Testing Library setup
+- **TailwindCSS** - Utility-first CSS framework for modern UI design
+- **React Router v6** - Declarative routing for single-page application
+- **Authentication** - JWT-based authentication with secure login/logout
+- **Task Management** - Create, assign, and track tasks with Kanban boards
+- **Sprint Planning** - Agile sprint planning with velocity tracking
+- **Team Management** - Invite members and manage team permissions
+- **Real-time Analytics** - Performance insights and project metrics
+- **User Profiles** - Complete profile management with photo uploads
+- **Session Management** - Track active sessions and device management
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Node.js (v14.x or higher)
 - npm or yarn
+- Backend API server running on port 3000
 
-## 🛠️ Installation
+## Installation
 
-1. Install dependencies:
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd kolabo
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
-   # or
-   yarn install
    ```
    
-2. Start the development server:
+3. Start the development server:
    ```bash
    npm start
-   # or
-   yarn start
    ```
 
-## 📁 Project Structure
+4. Open your browser and navigate to `http://localhost:4029`
+
+## Project Structure
 
 ```
-react_app/
-├── public/             # Static assets
+kolabo/
+├── public/             # Static assets and manifest
 ├── src/
 │   ├── components/     # Reusable UI components
+│   │   └── ui/         # UI-specific components (Header, Sidebar, etc.)
 │   ├── pages/          # Page components
-│   ├── styles/         # Global styles and Tailwind configuration
+│   │   ├── dashboard-overview/    # Main dashboard
+│   │   ├── kanban-board/         # Task management boards
+│   │   ├── sprint-planning/      # Sprint planning tools
+│   │   ├── analytics-dashboard/  # Performance analytics
+│   │   ├── team-management/      # Team settings
+│   │   ├── user-profile/         # User profile management
+│   │   └── login-register/       # Authentication pages
+│   ├── contexts/       # React context providers (Auth, Toast)
+│   ├── hooks/          # Custom React hooks
+│   ├── services/       # API service layer
+│   ├── styles/         # Global styles and CSS
+│   ├── utils/          # Utility functions
 │   ├── App.jsx         # Main application component
-│   ├── Routes.jsx      # Application routes
+│   ├── Routes.jsx      # Application routing configuration
 │   └── index.jsx       # Application entry point
-├── .env                # Environment variables
-├── index.html          # HTML template
 ├── package.json        # Project dependencies and scripts
 ├── tailwind.config.js  # Tailwind CSS configuration
-└── vite.config.js      # Vite configuration
+└── vite.config.mjs     # Vite build configuration
 ```
 
-## 🧩 Adding Routes
+## Key Features
 
-To add new routes to the application, update the `Routes.jsx` file:
+### Authentication System
+- JWT-based authentication
+- Username/email login support
+- User registration with validation
+- Session management and tracking
 
-```jsx
-import { useRoutes } from "react-router-dom";
-import HomePage from "pages/HomePage";
-import AboutPage from "pages/AboutPage";
+### Project Management
+- **Dashboard Overview** - Project metrics and activity feed
+- **Kanban Boards** - Visual task management with drag-and-drop
+- **Sprint Planning** - Agile sprint management with velocity tracking
+- **Analytics** - Team performance insights and reporting
 
-const ProjectRoutes = () => {
-  let element = useRoutes([
-    { path: "/", element: <HomePage /> },
-    { path: "/about", element: <AboutPage /> },
-    // Add more routes as needed
-  ]);
+### User Management
+- **Profile Management** - Complete user profile with photo uploads
+- **Team Management** - Invite members and manage permissions
+- **Session Tracking** - Monitor active sessions across devices
 
-  return element;
-};
-```
+## API Integration
 
-## 🎨 Styling
+The application integrates with a NestJS backend API with the following endpoints:
 
-This project uses Tailwind CSS for styling. The configuration includes:
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/profile` - Get current user profile
+- `PUT /api/auth/profile` - Update user profile
+- `POST /api/auth/profile/photo` - Upload profile photo
+- `DELETE /api/auth/profile/photo` - Remove profile photo
 
-- Forms plugin for form styling
-- Typography plugin for text styling
-- Aspect ratio plugin for responsive elements
-- Container queries for component-specific responsive design
-- Fluid typography for responsive text
-- Animation utilities
+### Additional Features
+- Session management
+- Real-time notifications
+- Task and project CRUD operations
+- Team collaboration tools
 
-## 📱 Responsive Design
+## Environment Setup
 
-The app is built with responsive design using Tailwind CSS breakpoints.
+Make sure your backend API is running on `http://localhost:3000` before starting the frontend application.
 
+## Available Scripts
 
-## 📦 Deployment
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm run serve` - Preview production build
 
-Build the application for production:
+## Technology Stack
 
-```bash
-npm run build
-```
+- **Frontend Framework**: React 18.2.0
+- **Build Tool**: Vite 5.0.0
+- **Styling**: TailwindCSS with custom design system
+- **State Management**: React Context API
+- **Routing**: React Router v6
+- **HTTP Client**: Fetch API with custom service layer
+- **Authentication**: JWT tokens with localStorage
+- **Icons**: Lucide React icon library
 
-## 🙏 Acknowledgments
+## Contributing
 
-- Built with [Rocket.new](https://rocket.new)
-- Powered by React and Vite
-- Styled with Tailwind CSS
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-Built with ❤️ on Rocket.new
+## License
+
+This project is licensed under the MIT License.

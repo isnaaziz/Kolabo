@@ -7,22 +7,22 @@ const InviteMemberModal = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState('');
   const [emailError, setEmailError] = useState('');
   const modalRef = useRef(null);
-  
+
   // Role options with descriptions
   const roleOptions = [
-    { 
-      value: 'Admin', 
-      label: 'Admin', 
+    {
+      value: 'Admin',
+      label: 'Admin',
       description: 'Full access to all workspace settings, can manage members and billing'
     },
-    { 
-      value: 'Member', 
-      label: 'Member', 
+    {
+      value: 'Member',
+      label: 'Member',
       description: 'Can create and edit tasks, participate in sprints, and view analytics'
     },
-    { 
-      value: 'Viewer', 
-      label: 'Viewer', 
+    {
+      value: 'Viewer',
+      label: 'Viewer',
       description: 'Read-only access to tasks and sprints, cannot make changes'
     }
   ];
@@ -30,7 +30,7 @@ const InviteMemberModal = ({ isOpen, onClose }) => {
   // Default invitation message
   const defaultMessage = `Hi there,
 
-I'd like to invite you to join our TaskFlow Pro workspace. We use it to manage our projects and collaborate on tasks.
+I'd like to invite you to join our Kolabo workspace. We use it to manage our projects and collaborate on tasks.
 
 Looking forward to working with you!`;
 
@@ -41,7 +41,7 @@ Looking forward to working with you!`;
     } else {
       document.body.style.overflow = 'auto';
     }
-    
+
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -57,7 +57,7 @@ Looking forward to working with you!`;
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -68,30 +68,30 @@ Looking forward to working with you!`;
       setEmailError('Please enter at least one email address');
       return false;
     }
-    
+
     const emailList = emailString.split(',').map(email => email.trim());
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     const invalidEmails = emailList.filter(email => !emailRegex.test(email));
-    
+
     if (invalidEmails.length > 0) {
       setEmailError(`Invalid email format: ${invalidEmails.join(', ')}`);
       return false;
     }
-    
+
     setEmailError('');
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validateEmails(emails)) {
       // In a real app, this would send the invitation
       console.log('Inviting:', emails.split(',').map(email => email.trim()));
       console.log('Role:', selectedRole);
       console.log('Message:', message);
-      
+
       // Reset form and close modal
       setEmails('');
       setSelectedRole('Member');
@@ -104,7 +104,7 @@ Looking forward to working with you!`;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-200 flex items-center justify-center p-4">
-      <div 
+      <div
         ref={modalRef}
         className="w-full max-w-2xl bg-surface rounded-lg shadow-xl border border-border overflow-hidden"
       >
@@ -140,9 +140,8 @@ Looking forward to working with you!`;
                     if (emailError) validateEmails(e.target.value);
                   }}
                   placeholder="Enter email addresses separated by commas"
-                  className={`pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    emailError ? 'border-error' : 'border-border'
-                  }`}
+                  className={`pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${emailError ? 'border-error' : 'border-border'
+                    }`}
                 />
               </div>
               {emailError && (
@@ -163,12 +162,11 @@ Looking forward to working with you!`;
               </label>
               <div className="space-y-3">
                 {roleOptions.map((role) => (
-                  <div 
+                  <div
                     key={role.value}
-                    className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors duration-200 ${
-                      selectedRole === role.value 
-                        ? 'border-primary bg-primary-50' :'border-border hover:bg-secondary-50'
-                    }`}
+                    className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors duration-200 ${selectedRole === role.value
+                        ? 'border-primary bg-primary-50' : 'border-border hover:bg-secondary-50'
+                      }`}
                     onClick={() => setSelectedRole(role.value)}
                   >
                     <div className="flex items-center h-5">
@@ -183,11 +181,10 @@ Looking forward to working with you!`;
                       />
                     </div>
                     <div className="ml-3 text-sm">
-                      <label 
-                        htmlFor={`role-${role.value}`} 
-                        className={`font-medium ${
-                          selectedRole === role.value ? 'text-primary' : 'text-text-primary'
-                        }`}
+                      <label
+                        htmlFor={`role-${role.value}`}
+                        className={`font-medium ${selectedRole === role.value ? 'text-primary' : 'text-text-primary'
+                          }`}
                       >
                         {role.label}
                       </label>

@@ -6,13 +6,13 @@ const IntegrationSettings = () => {
   const [integrations, setIntegrations] = useState({
     github: {
       connected: true,
-      account: 'taskflow-org',
-      repositories: ['taskflow/frontend', 'taskflow/backend', 'taskflow/docs'],
+      account: 'kolabo-org',
+      repositories: ['kolabo/frontend', 'kolabo/backend', 'kolabo/docs'],
       lastSync: '10 minutes ago'
     },
     slack: {
       connected: true,
-      workspace: 'TaskFlow Team',
+      workspace: 'Kolabo Team',
       channels: ['#project-updates', '#sprint-planning', '#general'],
       lastSync: '5 minutes ago'
     },
@@ -75,7 +75,7 @@ const IntegrationSettings = () => {
                 <div>
                   <h4 className="text-sm font-medium text-text-primary">GitHub</h4>
                   <p className="text-xs text-text-secondary">
-                    {integrations.github.connected 
+                    {integrations.github.connected
                       ? `Connected to ${integrations.github.account}`
                       : 'Not connected'}
                   </p>
@@ -83,14 +83,14 @@ const IntegrationSettings = () => {
               </div>
               <div>
                 {integrations.github.connected ? (
-                  <button 
+                  <button
                     onClick={() => handleDisconnect('github')}
                     className="px-3 py-1.5 border border-border rounded-lg text-xs hover:bg-secondary-50 transition-colors duration-200"
                   >
                     Disconnect
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => handleConnect('github')}
                     className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs hover:bg-primary-700 transition-colors duration-200"
                   >
@@ -99,7 +99,7 @@ const IntegrationSettings = () => {
                 )}
               </div>
             </div>
-            
+
             {integrations.github.connected && (
               <div className="px-4 py-3 bg-secondary-50 border-t border-border">
                 <div className="flex items-center justify-between mb-2">
@@ -132,7 +132,7 @@ const IntegrationSettings = () => {
                 <div>
                   <h4 className="text-sm font-medium text-text-primary">Slack</h4>
                   <p className="text-xs text-text-secondary">
-                    {integrations.slack.connected 
+                    {integrations.slack.connected
                       ? `Connected to ${integrations.slack.workspace}`
                       : 'Not connected'}
                   </p>
@@ -140,14 +140,14 @@ const IntegrationSettings = () => {
               </div>
               <div>
                 {integrations.slack.connected ? (
-                  <button 
+                  <button
                     onClick={() => handleDisconnect('slack')}
                     className="px-3 py-1.5 border border-border rounded-lg text-xs hover:bg-secondary-50 transition-colors duration-200"
                   >
                     Disconnect
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => handleConnect('slack')}
                     className="px-3 py-1.5 bg-primary text-white rounded-lg text-xs hover:bg-primary-700 transition-colors duration-200"
                   >
@@ -156,7 +156,7 @@ const IntegrationSettings = () => {
                 )}
               </div>
             </div>
-            
+
             {integrations.slack.connected && (
               <div className="px-4 py-3 bg-secondary-50 border-t border-border">
                 <div className="flex items-center justify-between mb-2">
@@ -193,14 +193,14 @@ const IntegrationSettings = () => {
                   </div>
                   <span className="text-xs font-medium text-text-primary">Jira</span>
                 </div>
-                <button 
+                <button
                   onClick={() => handleConnect('jira')}
                   className="px-2 py-1 bg-secondary-100 text-text-secondary rounded text-xs hover:bg-secondary-200 transition-colors duration-200"
                 >
                   Connect
                 </button>
               </div>
-              
+
               {/* Figma */}
               <div className="flex items-center justify-between p-3 border border-border rounded-lg">
                 <div className="flex items-center space-x-2">
@@ -209,7 +209,7 @@ const IntegrationSettings = () => {
                   </div>
                   <span className="text-xs font-medium text-text-primary">Figma</span>
                 </div>
-                <button 
+                <button
                   onClick={() => handleConnect('figma')}
                   className="px-2 py-1 bg-secondary-100 text-text-secondary rounded text-xs hover:bg-secondary-200 transition-colors duration-200"
                 >
@@ -237,7 +237,7 @@ const IntegrationSettings = () => {
               </button>
             </div>
             <div className="bg-secondary-100 border border-border rounded p-2 font-mono text-xs text-text-secondary overflow-x-auto">
-              https://api.taskflow.pro/webhooks/workspace/12345/events
+              https://api.kolabo.pro/webhooks/workspace/12345/events
             </div>
           </div>
         </div>

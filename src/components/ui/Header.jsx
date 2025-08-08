@@ -80,7 +80,7 @@ const Header = () => {
               <Icon name="Zap" size={18} color="white" />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg font-medium text-text-primary">TaskFlow Pro</h1>
+              <h1 className="text-lg font-medium text-text-primary">Kolabo</h1>
               <p className="text-xs text-text-secondary">Development Team</p>
             </div>
           </div>

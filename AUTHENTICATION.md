@@ -252,7 +252,7 @@ The forms include fallback to mock authentication if the backend is not availabl
 
 **Mock Credentials**:
 - Email: `john.doe@company.com`
-- Password: `TaskFlow2024!`
+- Password: `Kolabo2024!`
 
 This allows the frontend to work independently during development.
 

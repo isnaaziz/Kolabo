@@ -44,7 +44,7 @@ const LoginRegister = () => {
             <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
               <Icon name="Zap" size={24} color="white" />
             </div>
-            <h1 className="text-2xl font-bold text-text-primary">TaskFlow Pro</h1>
+            <h1 className="text-2xl font-bold text-text-primary">Kolabo</h1>
           </div>
           <p className="text-text-secondary text-lg">
             Streamline your development workflow with powerful task management
@@ -89,7 +89,7 @@ const LoginRegister = () => {
                     {activeTab === 'login' ? 'Welcome back!' : 'Get started today'}
                   </h2>
                   <p className="text-text-secondary">
-                    {activeTab === 'login' ? 'Sign in to your account to continue managing your projects' : 'Create your account and join thousands of teams already using TaskFlow Pro'
+                    {activeTab === 'login' ? 'Sign in to your account to continue managing your projects' : 'Create your account and join thousands of teams already using Kolabo'
                     }
                   </p>
                 </div>
@@ -167,7 +167,7 @@ const LoginRegister = () => {
                 {/* Testimonial */}
                 <div className="mt-8 p-4 bg-white bg-opacity-10 rounded-lg">
                   <p className="text-sm italic mb-3">
-                    "TaskFlow Pro transformed how our team manages projects. The sprint planning features are incredible!"
+                    "Kolabo transformed how our team manages projects. The sprint planning features are incredible!"
                   </p>
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">

@@ -94,7 +94,7 @@ const AnalyticsDashboard = () => {
 
   const projects = [
     { id: 'all', name: 'All Projects' },
-    { id: 'taskflow', name: 'TaskFlow Pro' },
+    { id: 'kolabo', name: 'Kolabo' },
     { id: 'mobile', name: 'Mobile App' },
     { id: 'api', name: 'API Platform' }
   ];
@@ -140,11 +140,11 @@ const AnalyticsDashboard = () => {
       <Header />
       <Sidebar />
       <CommandPalette />
-      
+
       <main className="lg:ml-60 pt-16">
         <div className="p-6">
           {/* Page Header */}
-          <PageHeader 
+          <PageHeader
             actions={
               <>
                 <button className="px-4 py-2 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors duration-200 flex items-center space-x-2">
@@ -164,7 +164,7 @@ const AnalyticsDashboard = () => {
             <div className="xl:w-64 space-y-6">
               <div className="bg-surface border border-border rounded-lg p-4">
                 <h3 className="font-medium text-text-primary mb-4">Filters</h3>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">Team Member</label>
@@ -178,7 +178,7 @@ const AnalyticsDashboard = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">Project</label>
                     <select
@@ -191,7 +191,7 @@ const AnalyticsDashboard = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">Chart Type</label>
                     <select
@@ -224,7 +224,7 @@ const AnalyticsDashboard = () => {
               <div className="mb-8">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                   <p className="text-text-secondary">Comprehensive insights into team performance and project metrics</p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3">
                     <select
                       value={selectedDateRange}
@@ -236,7 +236,7 @@ const AnalyticsDashboard = () => {
                       <option value="90d">Last 90 days</option>
                       <option value="1y">Last year</option>
                     </select>
-                    
+
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleExport('pdf')}
@@ -246,7 +246,7 @@ const AnalyticsDashboard = () => {
                         <Icon name="FileText" size={16} />
                         <span>Export PDF</span>
                       </button>
-                      
+
                       <button
                         onClick={() => handleExport('csv')}
                         disabled={isExporting}
@@ -337,8 +337,8 @@ const AnalyticsDashboard = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={cumulativeFlowData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                        <XAxis 
-                          dataKey="date" 
+                        <XAxis
+                          dataKey="date"
                           tickFormatter={formatDate}
                           stroke="#64748B"
                           fontSize={12}
@@ -371,18 +371,18 @@ const AnalyticsDashboard = () => {
                         <YAxis stroke="#64748B" fontSize={12} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="ideal" 
-                          stroke="#64748B" 
+                        <Line
+                          type="monotone"
+                          dataKey="ideal"
+                          stroke="#64748B"
                           strokeDasharray="5 5"
                           name="Ideal"
                           dot={false}
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="actual" 
-                          stroke="#2563EB" 
+                        <Line
+                          type="monotone"
+                          dataKey="actual"
+                          stroke="#2563EB"
                           strokeWidth={3}
                           name="Actual"
                         />
@@ -469,18 +469,18 @@ const AnalyticsDashboard = () => {
                         <YAxis stroke="#64748B" fontSize={12} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="actual" 
-                          stroke="#2563EB" 
+                        <Line
+                          type="monotone"
+                          dataKey="actual"
+                          stroke="#2563EB"
                           strokeWidth={3}
                           name="Actual Velocity"
                           connectNulls={false}
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="forecast" 
-                          stroke="#059669" 
+                        <Line
+                          type="monotone"
+                          dataKey="forecast"
+                          stroke="#059669"
                           strokeWidth={3}
                           strokeDasharray="5 5"
                           name="Forecasted"
@@ -506,26 +506,26 @@ const AnalyticsDashboard = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={commitCorrelationData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                        <XAxis 
-                          dataKey="date" 
+                        <XAxis
+                          dataKey="date"
                           tickFormatter={formatDate}
-                          stroke="#64748B" 
-                          fontSize={12} 
+                          stroke="#64748B"
+                          fontSize={12}
                         />
                         <YAxis stroke="#64748B" fontSize={12} />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="commits" 
-                          stroke="#F59E0B" 
+                        <Line
+                          type="monotone"
+                          dataKey="commits"
+                          stroke="#F59E0B"
                           strokeWidth={2}
                           name="Git Commits"
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="tasksCompleted" 
-                          stroke="#059669" 
+                        <Line
+                          type="monotone"
+                          dataKey="tasksCompleted"
+                          stroke="#059669"
                           strokeWidth={2}
                           name="Tasks Completed"
                         />

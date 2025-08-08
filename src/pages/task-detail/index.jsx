@@ -147,7 +147,7 @@ See the attached Figma designs for UI implementation details.`,
       avatar: "JS",
       email: "jane.smith@company.com"
     },
-    project: "TaskFlow Pro",
+    project: "Kolabo",
     sprint: "Sprint 12",
     storyPoints: 8,
     labels: ["Backend", "Security", "API"],
@@ -238,7 +238,7 @@ See the attached Figma designs for UI implementation details.`,
                 <Icon name="AlertTriangle" size={48} className="text-warning mx-auto mb-4" />
                 <h2 className="text-xl font-semibold text-text-primary mb-2">Task Not Found</h2>
                 <p className="text-text-secondary mb-6">The task you're looking for doesn't exist or has been moved.</p>
-                <button 
+                <button
                   onClick={() => navigate('/kanban-board')}
                   className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
                 >
@@ -259,101 +259,100 @@ See the attached Figma designs for UI implementation details.`,
       <div className="flex">
         <Sidebar />
         <div className="flex-1 pt-16 pl-60">
-        <div className="p-6">
-          {/* Page Header */}
-          <PageHeader 
-            title={`Task Details - ${mockTask?.title || 'Loading...'}`}
-            description="View and manage task information"
-            actions={
-              <>
-                <button className="px-4 py-2 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors duration-200 flex items-center space-x-2">
-                  <Icon name="Copy" size={16} />
-                  <span>Duplicate</span>
-                </button>
-                <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 flex items-center space-x-2">
-                  <Icon name="Edit" size={16} />
-                  <span>Edit Task</span>
-                </button>
-              </>
-            }
-          />
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-surface border border-border rounded-lg shadow-sm overflow-hidden">
-              {/* Task Detail Header */}
-              <TaskDetailHeader 
-                task={task}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                onClose={handleClose}
-                onSave={handleSave}
-                onTitleChange={handleTitleChange}
-                onStatusChange={handleStatusChange}
-              />
+          <div className="p-6">
+            {/* Page Header */}
+            <PageHeader
+              title={`Task Details - ${mockTask?.title || 'Loading...'}`}
+              description="View and manage task information"
+              actions={
+                <>
+                  <button className="px-4 py-2 bg-secondary-100 text-secondary-700 rounded-lg hover:bg-secondary-200 transition-colors duration-200 flex items-center space-x-2">
+                    <Icon name="Copy" size={16} />
+                    <span>Duplicate</span>
+                  </button>
+                  <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200 flex items-center space-x-2">
+                    <Icon name="Edit" size={16} />
+                    <span>Edit Task</span>
+                  </button>
+                </>
+              }
+            />
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-surface border border-border rounded-lg shadow-sm overflow-hidden">
+                {/* Task Detail Header */}
+                <TaskDetailHeader
+                  task={task}
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                  onClose={handleClose}
+                  onSave={handleSave}
+                  onTitleChange={handleTitleChange}
+                  onStatusChange={handleStatusChange}
+                />
 
-              {/* Task Detail Content */}
-              <div className="flex flex-col lg:flex-row">
-                {/* Main Content Area (70%) */}
-                <div className="w-full lg:w-8/12 p-6 border-r border-border">
-                  {/* Tabs */}
-                  <div className="border-b border-border mb-6">
-                    <nav className="flex space-x-8">
-                      {['description', 'comments', 'attachments', 'dependencies'].map((tab) => (
-                        <button
-                          key={tab}
-                          onClick={() => setActiveTab(tab)}
-                          className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                            activeTab === tab
-                              ? 'border-primary text-primary' :'border-transparent text-text-secondary hover:text-text-primary'
-                          }`}
-                        >
-                          {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                        </button>
-                      ))}
-                    </nav>
+                {/* Task Detail Content */}
+                <div className="flex flex-col lg:flex-row">
+                  {/* Main Content Area (70%) */}
+                  <div className="w-full lg:w-8/12 p-6 border-r border-border">
+                    {/* Tabs */}
+                    <div className="border-b border-border mb-6">
+                      <nav className="flex space-x-8">
+                        {['description', 'comments', 'attachments', 'dependencies'].map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${activeTab === tab
+                                ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'
+                              }`}
+                          >
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                          </button>
+                        ))}
+                      </nav>
+                    </div>
+
+                    {/* Tab Content */}
+                    {activeTab === 'description' && (
+                      <TaskDetailContent
+                        task={task}
+                        isEditing={isEditing}
+                        onDescriptionChange={handleDescriptionChange}
+                      />
+                    )}
+
+                    {activeTab === 'comments' && (
+                      <TaskDetailComments
+                        comments={task.comments}
+                        onAddComment={handleAddComment}
+                      />
+                    )}
+
+                    {activeTab === 'attachments' && (
+                      <TaskDetailAttachments
+                        attachments={task.attachments}
+                        onAddAttachment={handleAddAttachment}
+                      />
+                    )}
+
+                    {activeTab === 'dependencies' && (
+                      <TaskDetailDependencies
+                        dependencies={task.dependencies}
+                        navigate={navigate}
+                      />
+                    )}
                   </div>
 
-                  {/* Tab Content */}
-                  {activeTab === 'description' && (
-                    <TaskDetailContent 
-                      task={task} 
-                      isEditing={isEditing} 
-                      onDescriptionChange={handleDescriptionChange} 
+                  {/* Sidebar (30%) */}
+                  <div className="w-full lg:w-4/12 p-6 bg-secondary-50">
+                    <TaskDetailSidebar
+                      task={task}
+                      onPriorityChange={handlePriorityChange}
+                      onAssigneeChange={handleAssigneeChange}
                     />
-                  )}
-
-                  {activeTab === 'comments' && (
-                    <TaskDetailComments 
-                      comments={task.comments} 
-                      onAddComment={handleAddComment} 
-                    />
-                  )}
-
-                  {activeTab === 'attachments' && (
-                    <TaskDetailAttachments 
-                      attachments={task.attachments} 
-                      onAddAttachment={handleAddAttachment} 
-                    />
-                  )}
-
-                  {activeTab === 'dependencies' && (
-                    <TaskDetailDependencies 
-                      dependencies={task.dependencies} 
-                      navigate={navigate} 
-                    />
-                  )}
-                </div>
-
-                {/* Sidebar (30%) */}
-                <div className="w-full lg:w-4/12 p-6 bg-secondary-50">
-                  <TaskDetailSidebar 
-                    task={task} 
-                    onPriorityChange={handlePriorityChange}
-                    onAssigneeChange={handleAssigneeChange}
-                  />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

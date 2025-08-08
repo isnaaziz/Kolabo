@@ -3,9 +3,9 @@ import Icon from '../../../components/AppIcon';
 
 const WorkspaceSettings = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [workspaceName, setWorkspaceName] = useState('TaskFlow Pro');
+  const [workspaceName, setWorkspaceName] = useState('Kolabo');
   const [workspaceDescription, setWorkspaceDescription] = useState('Development team workspace for sprint planning and task management');
-  
+
   const handleSaveChanges = () => {
     // In a real app, this would save the changes to the backend
     console.log('Saving workspace changes:', { workspaceName, workspaceDescription });
@@ -18,14 +18,14 @@ const WorkspaceSettings = () => {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium text-text-primary">Workspace Settings</h3>
           {!isEditing ? (
-            <button 
+            <button
               onClick={() => setIsEditing(true)}
               className="p-2 text-secondary-600 hover:text-text-primary hover:bg-secondary-100 rounded-lg transition-colors duration-200"
             >
               <Icon name="Edit" size={16} />
             </button>
           ) : (
-            <button 
+            <button
               onClick={() => setIsEditing(false)}
               className="p-2 text-secondary-600 hover:text-text-primary hover:bg-secondary-100 rounded-lg transition-colors duration-200"
             >
@@ -72,7 +72,7 @@ const WorkspaceSettings = () => {
             </div>
             <span className="text-sm font-medium text-text-primary">7 members</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Icon name="Calendar" size={16} color="var(--color-text-secondary)" />
@@ -80,7 +80,7 @@ const WorkspaceSettings = () => {
             </div>
             <span className="text-sm font-medium text-text-primary">Jan 15, 2023</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Icon name="Shield" size={16} color="var(--color-text-secondary)" />
@@ -88,7 +88,7 @@ const WorkspaceSettings = () => {
             </div>
             <span className="text-sm font-medium text-text-primary">Enterprise</span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Icon name="Database" size={16} color="var(--color-text-secondary)" />
@@ -101,7 +101,7 @@ const WorkspaceSettings = () => {
         {/* Security Settings */}
         <div className="mt-6 pt-6 border-t border-border">
           <h4 className="text-sm font-medium text-text-primary mb-4">Security Settings</h4>
-          
+
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -116,14 +116,14 @@ const WorkspaceSettings = () => {
                 </p>
               </div>
               <div className="relative inline-block w-10 align-middle select-none">
-                <input 
-                  type="checkbox" 
-                  name="toggle" 
-                  id="toggle-2fa" 
+                <input
+                  type="checkbox"
+                  name="toggle"
+                  id="toggle-2fa"
                   className="sr-only"
                   defaultChecked={true}
                 />
-                <label 
+                <label
                   htmlFor="toggle-2fa"
                   className="block h-6 overflow-hidden rounded-full bg-success cursor-pointer"
                 >
@@ -131,7 +131,7 @@ const WorkspaceSettings = () => {
                 </label>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-2">
@@ -149,7 +149,7 @@ const WorkspaceSettings = () => {
                 <option value="480">8 hours</option>
               </select>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-2">

@@ -12,7 +12,7 @@ const PageHeader = ({ title, description, actions, showBreadcrumb = false }) => 
       description: 'Welcome back! Here\'s what\'s happening with your projects today.'
     },
     '/kanban-board': {
-      title: 'Kanban Board', 
+      title: 'Kanban Board',
       description: 'Manage tasks with visual workflow'
     },
     '/sprint-planning': {
@@ -35,7 +35,7 @@ const PageHeader = ({ title, description, actions, showBreadcrumb = false }) => 
 
   // Get current page info
   const currentPageInfo = navigationMapping[location.pathname] || {
-    title: title || 'TaskFlow Pro',
+    title: title || 'Kolabo',
     description: description || ''
   };
 
@@ -57,7 +57,7 @@ const PageHeader = ({ title, description, actions, showBreadcrumb = false }) => 
             </p>
           )}
         </div>
-        
+
         {/* Action Buttons */}
         {actions && (
           <div className="flex items-center space-x-3">

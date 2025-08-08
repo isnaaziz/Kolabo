@@ -39,7 +39,7 @@ const ActivityLog = () => {
       },
       action: "updated",
       target: "workspace settings",
-      details: "changed workspace name from \'Project X\' to \'TaskFlow Pro'",
+      details: "changed workspace name from \'Project X\' to \'Kolabo'",
       timestamp: "Feb 27, 2024 at 9:22 AM",
       icon: "Settings",
       iconColor: "var(--color-secondary)"
@@ -52,7 +52,7 @@ const ActivityLog = () => {
       },
       action: "connected",
       target: "GitHub integration",
-      details: "to repository \'taskflow/backend'",
+      details: "to repository \'kolabo/backend'",
       timestamp: "Feb 25, 2024 at 3:45 PM",
       icon: "Github",
       iconColor: "var(--color-text-primary)"
@@ -100,14 +100,14 @@ const ActivityLog = () => {
 
   // Group activities by date
   const groupedActivities = activityLogs.reduce((groups, activity) => {
-    const date = activity.timestamp.includes('Today') 
+    const date = activity.timestamp.includes('Today')
       ? 'Today' : activity.timestamp.includes('Yesterday')
         ? 'Yesterday' : activity.timestamp.split(' at ')[0];
-    
+
     if (!groups[date]) {
       groups[date] = [];
     }
-    
+
     groups[date].push(activity);
     return groups;
   }, {});
@@ -137,9 +137,9 @@ const ActivityLog = () => {
                   <div key={activity.id} className="flex">
                     <div className="flex-shrink-0 mr-4">
                       <div className="relative">
-                        <Image 
-                          src={activity.user.avatar} 
-                          alt={activity.user.name} 
+                        <Image
+                          src={activity.user.avatar}
+                          alt={activity.user.name}
                           className="h-10 w-10 rounded-full object-cover border-2 border-surface"
                         />
                         <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-surface rounded-full flex items-center justify-center border-2 border-surface">

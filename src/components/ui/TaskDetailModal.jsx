@@ -23,7 +23,7 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
       avatar: 'JS',
       email: 'jane.smith@company.com'
     },
-    project: 'TaskFlow Pro',
+    project: 'Kolabo',
     sprint: 'Sprint 12',
     storyPoints: 8,
     labels: ['Backend', 'Security', 'API'],
@@ -162,10 +162,9 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                        activeTab === tab
-                          ? 'border-primary text-primary' :'border-transparent text-text-secondary hover:text-text-primary'
-                      }`}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${activeTab === tab
+                          ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'
+                        }`}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </button>
@@ -399,8 +398,8 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
       </div>
 
       {/* Click outside to close */}
-      <div 
-        className="absolute inset-0 -z-10" 
+      <div
+        className="absolute inset-0 -z-10"
         onClick={handleClose}
       />
     </div>

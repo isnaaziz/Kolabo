@@ -13,7 +13,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 1,
       name: "Sarah Johnson",
-      email: "sarah.johnson@taskflow.com",
+      email: "sarah.johnson@kolabo.com",
       role: "Admin",
       avatar: "https://randomuser.me/api/portraits/women/44.jpg",
       lastActive: "Just now",
@@ -24,7 +24,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 2,
       name: "Michael Rodriguez",
-      email: "michael.r@taskflow.com",
+      email: "michael.r@kolabo.com",
       role: "Member",
       avatar: "https://randomuser.me/api/portraits/men/32.jpg",
       lastActive: "5 minutes ago",
@@ -35,7 +35,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 3,
       name: "Emily Chen",
-      email: "emily.chen@taskflow.com",
+      email: "emily.chen@kolabo.com",
       role: "Admin",
       avatar: "https://randomuser.me/api/portraits/women/63.jpg",
       lastActive: "2 hours ago",
@@ -46,7 +46,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 4,
       name: "David Kim",
-      email: "david.kim@taskflow.com",
+      email: "david.kim@kolabo.com",
       role: "Member",
       avatar: "https://randomuser.me/api/portraits/men/11.jpg",
       lastActive: "1 day ago",
@@ -57,7 +57,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 5,
       name: "Jessica Taylor",
-      email: "jessica.t@taskflow.com",
+      email: "jessica.t@kolabo.com",
       role: "Viewer",
       avatar: "https://randomuser.me/api/portraits/women/85.jpg",
       lastActive: "3 days ago",
@@ -68,7 +68,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 6,
       name: "Robert Wilson",
-      email: "robert.w@taskflow.com",
+      email: "robert.w@kolabo.com",
       role: "Member",
       avatar: "https://randomuser.me/api/portraits/men/83.jpg",
       lastActive: "Just now",
@@ -79,7 +79,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     {
       id: 7,
       name: "Lisa Martinez",
-      email: "lisa.m@taskflow.com",
+      email: "lisa.m@kolabo.com",
       role: "Viewer",
       avatar: "https://randomuser.me/api/portraits/women/32.jpg",
       lastActive: "1 week ago",
@@ -91,13 +91,13 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
 
   // Filter members based on search query and role filter
   const filteredMembers = teamMembers.filter(member => {
-    const matchesSearch = 
+    const matchesSearch =
       member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.department.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesRole = roleFilter === 'All' || member.role === roleFilter;
-    
+
     return matchesSearch && matchesRole;
   });
 
@@ -124,7 +124,7 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     if (sortConfig.key !== columnName) {
       return <Icon name="ArrowUpDown" size={14} className="ml-1 opacity-50" />;
     }
-    return sortConfig.direction === 'ascending' 
+    return sortConfig.direction === 'ascending'
       ? <Icon name="ArrowUp" size={14} className="ml-1" />
       : <Icon name="ArrowDown" size={14} className="ml-1" />;
   };
@@ -195,9 +195,9 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 relative">
-                      <Image 
-                        src={member.avatar} 
-                        alt={member.name} 
+                      <Image
+                        src={member.avatar}
+                        alt={member.name}
                         className="h-10 w-10 rounded-full object-cover"
                       />
                       <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${getStatusColor(member.status)}`}></div>
@@ -260,9 +260,9 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 relative">
-                      <Image 
-                        src={member.avatar} 
-                        alt={member.name} 
+                      <Image
+                        src={member.avatar}
+                        alt={member.name}
                         className="h-10 w-10 rounded-full object-cover"
                       />
                       <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${getStatusColor(member.status)}`}></div>

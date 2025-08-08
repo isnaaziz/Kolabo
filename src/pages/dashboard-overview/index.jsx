@@ -52,7 +52,7 @@ const DashboardOverview = () => {
       },
       action: 'created task',
       target: 'Implement user authentication',
-      project: 'TaskFlow Pro',
+      project: 'Kolabo',
       timestamp: '2 minutes ago',
       priority: 'High'
     },
@@ -80,7 +80,7 @@ const DashboardOverview = () => {
       },
       action: 'started sprint',
       target: 'Sprint 15 - Q1 Features',
-      project: 'TaskFlow Pro',
+      project: 'Kolabo',
       timestamp: '1 hour ago',
       priority: null
     },
