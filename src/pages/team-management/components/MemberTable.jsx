@@ -2,103 +2,58 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 
-const MemberTable = ({ searchQuery, roleFilter }) => {
+const roleColors = {
+  admin: 'bg-primary-100 text-primary-700',
+  member: 'bg-secondary-100 text-secondary-700',
+  viewer: 'bg-accent-100 text-accent-700'
+};
+
+const MemberTable = ({
+  members = [],
+  loading = false,
+  onUpdateRole,
+  onRemove,
+  searchQuery = ''
+}) => {
   const [sortConfig, setSortConfig] = useState({
     key: 'name',
     direction: 'ascending'
   });
 
-  // Mock team members data
-  const teamMembers = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      email: "sarah.johnson@kolabo.com",
-      role: "Admin",
-      avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-      lastActive: "Just now",
-      status: "Online",
-      department: "Product",
-      joinedDate: "Jan 15, 2023"
-    },
-    {
-      id: 2,
-      name: "Michael Rodriguez",
-      email: "michael.r@kolabo.com",
-      role: "Member",
-      avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-      lastActive: "5 minutes ago",
-      status: "Online",
-      department: "Engineering",
-      joinedDate: "Mar 3, 2023"
-    },
-    {
-      id: 3,
-      name: "Emily Chen",
-      email: "emily.chen@kolabo.com",
-      role: "Admin",
-      avatar: "https://randomuser.me/api/portraits/women/63.jpg",
-      lastActive: "2 hours ago",
-      status: "Away",
-      department: "Design",
-      joinedDate: "Feb 12, 2023"
-    },
-    {
-      id: 4,
-      name: "David Kim",
-      email: "david.kim@kolabo.com",
-      role: "Member",
-      avatar: "https://randomuser.me/api/portraits/men/11.jpg",
-      lastActive: "1 day ago",
-      status: "Offline",
-      department: "Engineering",
-      joinedDate: "Apr 22, 2023"
-    },
-    {
-      id: 5,
-      name: "Jessica Taylor",
-      email: "jessica.t@kolabo.com",
-      role: "Viewer",
-      avatar: "https://randomuser.me/api/portraits/women/85.jpg",
-      lastActive: "3 days ago",
-      status: "Offline",
-      department: "Marketing",
-      joinedDate: "Jun 8, 2023"
-    },
-    {
-      id: 6,
-      name: "Robert Wilson",
-      email: "robert.w@kolabo.com",
-      role: "Member",
-      avatar: "https://randomuser.me/api/portraits/men/83.jpg",
-      lastActive: "Just now",
-      status: "Online",
-      department: "Engineering",
-      joinedDate: "May 17, 2023"
-    },
-    {
-      id: 7,
-      name: "Lisa Martinez",
-      email: "lisa.m@kolabo.com",
-      role: "Viewer",
-      avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-      lastActive: "1 week ago",
-      status: "Offline",
-      department: "Sales",
-      joinedDate: "Jul 30, 2023"
-    }
-  ];
+  // Hapus / tidak gunakan mock teamMembers agar tidak membingungkan (data asli datang via props)
+  // const teamMembers = [...];
 
-  // Filter members based on search query and role filter
-  const filteredMembers = teamMembers.filter(member => {
-    const matchesSearch =
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.department.toLowerCase().includes(searchQuery.toLowerCase());
+  // Helper avatar & status
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+  // User profile memakai prefix http://localhost:3000 + path avatar_url
+  const PROFILE_PREFIX = (API_BASE.replace(/\/api$/, '')) || 'http://localhost:3000';
+  const DEFAULT_AVATAR = '/assets/images/no_image.png';
+  const getAvatar = (m) => {
+    const raw = m.avatar_url || m.avatar || m.photo_url || m.photo; // variasi kemungkinan
+    if (!raw) return DEFAULT_AVATAR;
+    if (raw.startsWith('http')) return raw;
+    // Pastikan ada leading slash
+    const path = raw.startsWith('/') ? raw : `/${raw}`;
+    return `${PROFILE_PREFIX}${path}`;
+  };
+  const getStatusDotClass = (status) => {
+    if (!status) return 'bg-secondary-300';
+    const s = status.toString().toLowerCase();
+    if (['online', 'active'].includes(s)) return 'bg-success';
+    if (['away', 'idle'].includes(s)) return 'bg-warning';
+    return 'bg-secondary-300';
+  };
 
-    const matchesRole = roleFilter === 'All' || member.role === roleFilter;
-
-    return matchesSearch && matchesRole;
+  // Ganti blok/filter lama yang memakai searchQuery (hapus yang lama jika ada)
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredMembers = (members || []).filter(m => {
+    if (!normalizedQuery) return true;
+    return (
+      (m.full_name && m.full_name.toLowerCase().includes(normalizedQuery)) ||
+      (m.username && m.username.toLowerCase().includes(normalizedQuery)) ||
+      (m.name && m.name.toLowerCase().includes(normalizedQuery)) ||
+      (m.email && m.email.toLowerCase().includes(normalizedQuery))
+    );
   });
 
   // Sort members based on sort config
@@ -147,101 +102,130 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="p-10 text-center text-sm text-text-secondary">
+        Loading members...
+      </div>
+    );
+  }
+
+  if (!members.length) {
+    return (
+      <div className="p-10 text-center text-sm text-text-secondary bg-surface border border-border rounded-lg">
+        No members found.
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-surface border border-border rounded-lg overflow-hidden">
-      {/* Desktop Table View */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-secondary-50 border-b border-border">
+    <div className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
+      <div className="hidden md:block relative">
+        <table className="w-full text-sm">
+          <thead className="bg-secondary-50 border-b border-border sticky top-0 z-10">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
-                <div className="flex items-center cursor-pointer" onClick={() => requestSort('name')}>
+              <th className="px-6 py-3 text-left font-medium text-text-secondary uppercase tracking-wider w-1/3">
+                <div className="flex items-center cursor-pointer select-none" onClick={() => requestSort('name')}>
                   <span>Name</span>
                   {getSortIcon('name')}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
-                <div className="flex items-center cursor-pointer" onClick={() => requestSort('role')}>
+              <th className="px-6 py-3 text-left font-medium text-text-secondary uppercase tracking-wider w-40">
+                <div className="flex items-center cursor-pointer select-none" onClick={() => requestSort('role')}>
                   <span>Role</span>
                   {getSortIcon('role')}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
-                <div className="flex items-center cursor-pointer" onClick={() => requestSort('department')}>
+              <th className="px-6 py-3 text-left font-medium text-text-secondary uppercase tracking-wider w-40">
+                <div className="flex items-center cursor-pointer select-none" onClick={() => requestSort('department')}>
                   <span>Department</span>
                   {getSortIcon('department')}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
-                <div className="flex items-center cursor-pointer" onClick={() => requestSort('lastActive')}>
+              <th className="px-6 py-3 text-left font-medium text-text-secondary uppercase tracking-wider w-32">
+                <div className="flex items-center cursor-pointer select-none" onClick={() => requestSort('lastActive')}>
                   <span>Last Active</span>
                   {getSortIcon('lastActive')}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-secondary uppercase tracking-wider">
-                <div className="flex items-center cursor-pointer" onClick={() => requestSort('status')}>
+              <th className="px-6 py-3 text-left font-medium text-text-secondary uppercase tracking-wider w-28">
+                <div className="flex items-center cursor-pointer select-none" onClick={() => requestSort('status')}>
                   <span>Status</span>
                   {getSortIcon('status')}
                 </div>
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-text-secondary uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="px-4 py-3 text-right font-medium text-text-secondary uppercase tracking-wider w-32">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {sortedMembers.map((member) => (
-              <tr key={member.id} className="hover:bg-secondary-50 transition-colors duration-150">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 relative">
-                      <Image
-                        src={member.avatar}
-                        alt={member.name}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                      <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${getStatusColor(member.status)}`}></div>
+            {members.map((m, idx) => {
+              const initials = (m.full_name || m.username || m.name || '?')
+                .split(' ')
+                .map(p => p[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase();
+              const match = searchQuery.toLowerCase();
+              const displayName = m.full_name || m.username || m.name || '';
+              const highlightedName = match
+                ? displayName.replace(new RegExp(`(${match})`, 'ig'), '<mark class="bg-primary-100 text-primary-700 rounded px-0.5">$1</mark>')
+                : displayName;
+              const avatar = getAvatar(m);
+              return (
+                <tr key={m.id} className={`group transition-colors ${idx % 2 ? 'bg-secondary-50/40' : 'bg-white'} hover:bg-primary-50/60`}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-10 w-10">
+                        {avatar ? (
+                          <img src={avatar} alt={displayName} className="h-10 w-10 rounded-full object-cover ring-1 ring-primary-200 shadow-inner" onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR }} />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-primary-100 text-primary-700 font-semibold flex items-center justify-center ring-1 ring-primary-200 shadow-inner">
+                            {initials}
+                          </div>
+                        )}
+                        <span className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white ${getStatusDotClass(m.status)}`}></span>
+                      </div>
+                      <div>
+                        <div className="font-medium text-text-primary" dangerouslySetInnerHTML={{ __html: highlightedName }} />
+                        {m.username && <div className="text-xs text-text-secondary">@{m.username}</div>}
+                      </div>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-text-primary">{member.name}</div>
-                      <div className="text-sm text-text-secondary">{member.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${getRoleBadgeColor(member.role)}`}>
-                    {member.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
-                  {member.department}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">
-                  {member.lastActive}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className={`h-2.5 w-2.5 rounded-full ${getStatusColor(member.status)} mr-2`}></div>
-                    <span className="text-sm text-text-secondary">{member.status}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex items-center justify-end space-x-2">
-                    <button className="p-1 text-secondary-600 hover:text-primary transition-colors duration-200" title="Edit Member">
-                      <Icon name="Edit" size={16} />
-                    </button>
-                    <button className="p-1 text-secondary-600 hover:text-primary transition-colors duration-200" title="Change Role">
-                      <Icon name="Shield" size={16} />
-                    </button>
-                    <div className="relative">
-                      <button className="p-1 text-secondary-600 hover:text-primary transition-colors duration-200" title="More Options">
-                        <Icon name="MoreVertical" size={16} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <select
+                      className="text-xs px-2 py-1 border border-border rounded bg-white focus:ring-primary-500 focus:border-primary-500"
+                      value={m.role}
+                      onChange={(e) => onUpdateRole(m.id, e.target.value)}
+                    >
+                      <option value="admin">admin</option>
+                      <option value="member">member</option>
+                      <option value="viewer">viewer</option>
+                    </select>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full bg-secondary-100 text-secondary-700 capitalize`}> {m.role}</span>
+                  </td>
+                  <td className="px-6 py-4 text-xs text-text-secondary">{m.last_active || '-'}</td>
+                  <td className="px-6 py-4">
+                    <span className="flex items-center gap-2 text-xs text-text-secondary">
+                      <span className={`h-2.5 w-2.5 rounded-full ${getStatusDotClass(m.status)} shadow`} />
+                      {m.status || '—'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => onRemove(m.id)}
+                        className="px-2 py-1 text-error border border-error/50 rounded-lg hover:bg-error-50 text-xs flex items-center gap-1 hover:shadow-sm"
+                      >
+                        <Icon name="Trash" size={12} />
+                        Remove
                       </button>
                     </div>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -255,63 +239,68 @@ const MemberTable = ({ searchQuery, roleFilter }) => {
           </div>
         ) : (
           <div className="divide-y divide-border">
-            {sortedMembers.map((member) => (
-              <div key={member.id} className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 relative">
-                      <Image
-                        src={member.avatar}
-                        alt={member.name}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                      <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${getStatusColor(member.status)}`}></div>
+            {sortedMembers.map((member) => {
+              const avatar = getAvatar(member);
+              return (
+                <div key={member.id} className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10 relative">
+                        {avatar ? (
+                          <img src={avatar} alt={member.name || member.username} className="h-10 w-10 rounded-full object-cover" onError={(e) => { e.currentTarget.src = DEFAULT_AVATAR }} />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-primary-100 text-primary-700 font-semibold flex items-center justify-center">
+                            {(member.full_name || member.username || '?').slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${getStatusDotClass(member.status)}`}></div>
+                      </div>
+                      <div className="ml-3">
+                        <div className="text-sm font-medium text-text-primary">{member.full_name || member.username || member.name}</div>
+                        {(member.email || member.username) && <div className="text-xs text-text-secondary">{member.email || '@' + member.username}</div>}
+                      </div>
                     </div>
-                    <div className="ml-3">
-                      <div className="text-sm font-medium text-text-primary">{member.name}</div>
-                      <div className="text-xs text-text-secondary">{member.email}</div>
+                    <button className="p-1 text-secondary-600 hover:text-primary transition-colors duration-200">
+                      <Icon name="MoreVertical" size={16} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex flex-col">
+                      <span className="text-text-secondary">Role</span>
+                      <span className={`mt-1 px-2 py-0.5 inline-flex text-xs leading-5 font-medium rounded-full w-fit ${getRoleBadgeColor(member.role)}`}>
+                        {member.role}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-text-secondary">Department</span>
+                      <span className="text-text-primary">{member.department}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-text-secondary">Last Active</span>
+                      <span className="text-text-primary">{member.lastActive}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-text-secondary">Status</span>
+                      <div className="flex items-center mt-1">
+                        <div className={`h-2 w-2 rounded-full ${getStatusDotClass(member.status)} mr-1.5`}></div>
+                        <span className="text-text-primary">{member.status || '—'}</span>
+                      </div>
                     </div>
                   </div>
-                  <button className="p-1 text-secondary-600 hover:text-primary transition-colors duration-200">
-                    <Icon name="MoreVertical" size={16} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="flex flex-col">
-                    <span className="text-text-secondary">Role</span>
-                    <span className={`mt-1 px-2 py-0.5 inline-flex text-xs leading-5 font-medium rounded-full w-fit ${getRoleBadgeColor(member.role)}`}>
-                      {member.role}
-                    </span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-text-secondary">Department</span>
-                    <span className="text-text-primary">{member.department}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-text-secondary">Last Active</span>
-                    <span className="text-text-primary">{member.lastActive}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-text-secondary">Status</span>
-                    <div className="flex items-center mt-1">
-                      <div className={`h-2 w-2 rounded-full ${getStatusColor(member.status)} mr-1.5`}></div>
-                      <span className="text-text-primary">{member.status}</span>
-                    </div>
+                  <div className="mt-4 flex justify-end space-x-2">
+                    <button className="p-1.5 text-secondary-600 hover:text-primary transition-colors duration-200 bg-secondary-50 rounded-full">
+                      <Icon name="Edit" size={14} />
+                    </button>
+                    <button className="p-1.5 text-secondary-600 hover:text-primary transition-colors duration-200 bg-secondary-50 rounded-full">
+                      <Icon name="Shield" size={14} />
+                    </button>
+                    <button className="p-1.5 text-error-600 hover:text-error transition-colors duration-200 bg-error-50 rounded-full">
+                      <Icon name="UserMinus" size={14} />
+                    </button>
                   </div>
                 </div>
-                <div className="mt-4 flex justify-end space-x-2">
-                  <button className="p-1.5 text-secondary-600 hover:text-primary transition-colors duration-200 bg-secondary-50 rounded-full">
-                    <Icon name="Edit" size={14} />
-                  </button>
-                  <button className="p-1.5 text-secondary-600 hover:text-primary transition-colors duration-200 bg-secondary-50 rounded-full">
-                    <Icon name="Shield" size={14} />
-                  </button>
-                  <button className="p-1.5 text-error-600 hover:text-error transition-colors duration-200 bg-error-50 rounded-full">
-                    <Icon name="UserMinus" size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,3 +1,5 @@
+import { tokenStore } from './apiClient';
+
 /**
  * API Service with integrated toast notifications
  * Handles all API calls and automatically shows appropriate toasts
@@ -13,23 +15,40 @@ class ApiService {
         this.toastContext = toastContext;
     }
 
-    // Get stored token
+    // Get stored token (updated to use tokenStore if available)
     getToken() {
-        return localStorage.getItem('token');
+        try {
+            tokenStore.load();
+            const t = tokenStore.getAccess();
+            if (t) return t;
+        } catch { }
+        // Fallbacks for legacy storage
+        const legacy = localStorage.getItem('token');
+        if (legacy) return legacy;
+        try {
+            const raw = localStorage.getItem('kolabo_tokens');
+            if (raw) {
+                const obj = JSON.parse(raw);
+                return obj.access_token || obj.accessToken || null;
+            }
+        } catch { }
+        return null;
     }
 
-    // Default headers
+    // Default headers (now always up to date)
     getHeaders() {
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-
+        const headers = { 'Content-Type': 'application/json' };
         const token = this.getToken();
-        if (token) {
-            headers.Authorization = `Bearer ${token}`;
-        }
-
+        if (token) headers.Authorization = `Bearer ${token}`;
         return headers;
+    }
+
+    // Utility to sync legacy single token (optional)
+    syncLegacyToken() {
+        try {
+            const token = this.getToken();
+            if (token) localStorage.setItem('token', token); // keep older parts working
+        } catch { }
     }
 
     // Generic API request method
@@ -133,6 +152,14 @@ class ApiService {
                 method: 'POST',
                 body: JSON.stringify(credentials),
             });
+
+            // Persist tokens if present (for callers using apiService directly)
+            if (response?.data?.access_token) {
+                tokenStore.set({
+                    access_token: response.data.access_token,
+                    refresh_token: response.data.refresh_token
+                });
+            }
 
             if (showToast) {
                 this.toastContext?.removeToast(loadingToastId);

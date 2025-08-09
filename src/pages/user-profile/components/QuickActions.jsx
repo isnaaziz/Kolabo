@@ -2,7 +2,6 @@ import React from 'react';
 import Icon from '../../../components/AppIcon';
 
 const QuickActions = ({
-    setIsEditing,
     setShowPasswordForm,
     loadUserSessions,
     loadingSessions
@@ -18,34 +17,18 @@ const QuickActions = ({
             </div>
             <div className="p-4 space-y-3">
                 <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => setShowPasswordForm(true)}
                     className="w-full p-4 bg-gradient-to-r from-primary-50 to-primary-100 hover:from-primary-100 hover:to-primary-200 border border-primary-200 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-md group"
                 >
                     <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-primary-200 rounded-lg flex items-center justify-center group-hover:bg-primary-300 transition-colors duration-200">
-                            <Icon name="Edit" size={18} className="text-primary-700" />
+                            <Icon name="Lock" size={18} className="text-primary-700" />
                         </div>
                         <div className="text-left flex-1">
-                            <p className="font-medium text-primary-700">Edit Profile</p>
-                            <p className="text-sm text-primary-600">Update your personal information</p>
+                            <p className="font-medium text-primary-700">Change Password</p>
+                            <p className="text-sm text-primary-600">Update your account security</p>
                         </div>
                         <Icon name="ChevronRight" size={16} className="text-primary-600 group-hover:translate-x-1 transition-transform duration-200" />
-                    </div>
-                </button>
-
-                <button
-                    onClick={() => setShowPasswordForm(true)}
-                    className="w-full p-4 bg-gradient-to-r from-secondary-50 to-secondary-100 hover:from-secondary-100 hover:to-secondary-200 border border-secondary-200 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-md group"
-                >
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-secondary-200 rounded-lg flex items-center justify-center group-hover:bg-secondary-300 transition-colors duration-200">
-                            <Icon name="Lock" size={18} className="text-secondary-700" />
-                        </div>
-                        <div className="text-left flex-1">
-                            <p className="font-medium text-secondary-700">Change Password</p>
-                            <p className="text-sm text-secondary-600">Update your account security</p>
-                        </div>
-                        <Icon name="ChevronRight" size={16} className="text-secondary-600 group-hover:translate-x-1 transition-transform duration-200" />
                     </div>
                 </button>
 

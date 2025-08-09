@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import { useApiService } from '../../../hooks/useApiService';
+import { tokenStore } from '../../../services/apiClient';
 
 export const useProfileManagement = () => {
     const { user, updateProfile } = useAuth();
@@ -71,24 +72,28 @@ export const useProfileManagement = () => {
     const loadUserSessions = async () => {
         setLoadingSessions(true);
         try {
-            const response = await apiService.request('/auth/sessions');
-            setSessions(response.data || []);
+            const response = await apiService.request('/auth/sessions', { method: 'GET' });
+            // Accept several possible shapes: array, {sessions: []}, {data: {sessions: []}}
+            let list = [];
+            if (Array.isArray(response.data)) list = response.data;
+            else if (Array.isArray(response.data?.sessions)) list = response.data.sessions;
+            else if (Array.isArray(response.data?.data?.sessions)) list = response.data.data.sessions;
+            setSessions(list);
         } catch (error) {
             console.error('Failed to load sessions:', error);
             showErrorToast('Failed to load sessions', {
                 title: 'Error',
                 duration: 4000
             });
+            setSessions([]);
         } finally {
             setLoadingSessions(false);
         }
     };
 
-    // Load sessions on component mount
+    // Load sessions on component mount / user change
     useEffect(() => {
-        if (user) {
-            loadUserSessions();
-        }
+        if (user) loadUserSessions();
     }, [user]);
 
     // Form handlers
@@ -217,76 +222,69 @@ export const useProfileManagement = () => {
     const handlePhotoUpload = async (event) => {
         const file = event.target.files?.[0];
         if (!file) return;
-
-        // Validate file type
         if (!file.type.startsWith('image/')) {
-            showErrorToast('Please select a valid image file', {
-                title: 'Invalid File Type',
-                duration: 4000
-            });
+            showErrorToast('Please select a valid image file', { title: 'Invalid File Type', duration: 4000 });
             return;
         }
-
-        // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
-            showErrorToast('Image size must be less than 5MB', {
-                title: 'File Too Large',
-                duration: 4000
-            });
+            showErrorToast('Image size must be less than 5MB', { title: 'File Too Large', duration: 4000 });
             return;
         }
-
         setUploadingPhoto(true);
         let loadingToastId = null;
-
         try {
-            loadingToastId = showLoadingToast('Uploading photo...', {
-                title: 'Please wait'
-            });
-
+            loadingToastId = showLoadingToast('Uploading photo...', { title: 'Please wait' });
             const formData = new FormData();
             formData.append('photo', file);
 
-            // Use fetch directly for FormData upload
-            const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/auth/profile/photo`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
+            // Ensure latest token
+            tokenStore.load();
+            let access = tokenStore.getAccess();
+            const refresh = tokenStore.getRefresh();
 
-            const data = await response.json();
+            const uploadOnce = async () => {
+                return fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/auth/profile/photo`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${access}`
+                    },
+                    body: formData
+                });
+            };
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Upload failed');
+            let response = await uploadOnce();
+            // If unauthorized and we have refresh token, attempt refresh then retry once
+            if (response.status === 401 && refresh) {
+                try {
+                    const refreshResp = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'}/auth/refresh`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ refresh_token: refresh })
+                    });
+                    if (refreshResp.ok) {
+                        const refreshData = await refreshResp.json();
+                        tokenStore.set(refreshData);
+                        access = tokenStore.getAccess();
+                        response = await uploadOnce();
+                    }
+                } catch (e) {
+                    console.warn('Refresh before photo upload failed:', e);
+                }
             }
 
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || 'Upload failed');
+
             removeToast(loadingToastId);
-
-            // Update profile photo state immediately - backend returns avatar_url
-            const newPhotoUrl = data.avatar_url ? `http://localhost:3000${data.avatar_url}` : URL.createObjectURL(file);
+            const newPhotoUrl = data.avatar_url ? `${import.meta.env.VITE_API_BASE_URL?.replace(/\/api$/, '') || 'http://localhost:3000'}${data.avatar_url}` : URL.createObjectURL(file);
             setProfilePhoto(newPhotoUrl);
-
-            // Refresh user profile to get updated data
             await updateProfile();
-
-            showSuccessToast('Profile photo updated successfully!', {
-                title: 'Success',
-                duration: 4000
-            });
-
+            showSuccessToast('Profile photo updated successfully!', { title: 'Success', duration: 4000 });
         } catch (error) {
             if (loadingToastId) removeToast(loadingToastId);
-
-            showErrorToast(error.message || 'Failed to upload photo', {
-                title: 'Upload Failed',
-                duration: 6000
-            });
+            showErrorToast(error.message || 'Failed to upload photo', { title: 'Upload Failed', duration: 6000 });
         } finally {
             setUploadingPhoto(false);
-            // Clear the input
             event.target.value = '';
         }
     };

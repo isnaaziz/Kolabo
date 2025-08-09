@@ -36,5 +36,15 @@ export const API_ENDPOINTS = {
         RESTORE: (id) => `/users/${id}/restore`,
         SESSIONS: (id) => `/users/${id}/sessions`
     },
+    TEAM: {
+        MEMBERS: '/team/members',
+        INVITE: '/team/invite',
+        INVITES: (query = '') => `/team/invites${query}`,
+        INVITE_ACCEPT: '/team/invite/accept',
+        INVITE_REVOKE: '/team/invite/revoke',
+        PURGE_EXPIRED: '/team/invites/purge-expired',
+        UPDATE_ROLE: (id) => `/team/members/${id}/role`,
+        REMOVE_MEMBER: (id) => `/team/members/${id}`
+    },
     HEALTH: '/health'
 };
