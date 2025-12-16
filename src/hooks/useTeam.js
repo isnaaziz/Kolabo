@@ -111,6 +111,19 @@ export const useTeam = () => {
         revokeInvite,
         updateRole,
         removeMember,
+        resendInvite: async (inviteId) => {
+            let toastId = showLoadingToast('Resending invite...');
+            try {
+                const res = await teamService.resendInvite(inviteId);
+                removeToast(toastId);
+                showSuccessToast('Invite resent (new token generated)');
+                fetchInvites(); // Token changes
+                return res;
+            } catch (e) {
+                removeToast(toastId);
+                showErrorToast(e.message || 'Resend failed');
+            }
+        },
         refreshMembers: fetchMembers,
         refreshInvites: fetchInvites
     };

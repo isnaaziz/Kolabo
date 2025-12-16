@@ -68,6 +68,18 @@ class ApiService {
 
             // Handle response based on status
             if (!response.ok) {
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    try { tokenStore.clear(); } catch { }
+                    localStorage.removeItem('token');
+
+                    // Redirect to login if not already there
+                    const loginPath = '/login-register';
+                    if (!window.location.pathname.includes(loginPath) && !window.location.pathname.includes('/login')) {
+                        window.location.href = loginPath;
+                    }
+                }
+
                 const error = new Error(data.message || 'Request failed');
                 error.response = { status: response.status, data };
                 throw error;

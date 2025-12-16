@@ -14,7 +14,10 @@ import SprintPlanning from "./pages/sprint-planning";
 import TaskDetail from "./pages/task-detail";
 import AnalyticsDashboard from "./pages/analytics-dashboard";
 import TeamManagement from "./pages/team-management";
+import AcceptInvite from "./pages/team-management/AcceptInvite";
 import UserProfile from "./pages/user-profile/UserProfile";
+import ForgotPassword from "./pages/login-register/ForgotPassword";
+import ResetPassword from "./pages/login-register/ResetPassword";
 
 const Routes = () => {
   return (
@@ -24,6 +27,9 @@ const Routes = () => {
         <RouterRoutes>
           {/* Public routes - no authentication required */}
           <Route path="/login-register" element={<LoginRegister />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/accept-invite" element={<AcceptInvite />} />
           <Route path="/logout" element={<LogoutPage />} />
 
           {/* Protected routes - authentication required */}

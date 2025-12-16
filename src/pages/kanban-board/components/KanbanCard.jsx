@@ -2,13 +2,13 @@ import React from 'react';
 import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 
-const KanbanCard = ({ 
-  task, 
-  viewMode, 
-  isSelected, 
-  isMultiSelectMode, 
-  isDragging, 
-  onClick 
+const KanbanCard = ({
+  task,
+  viewMode,
+  isSelected,
+  isMultiSelectMode,
+  isDragging,
+  onClick
 }) => {
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -35,21 +35,17 @@ const KanbanCard = ({
   return (
     <div
       onClick={onClick}
-      className={`bg-surface border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
-        isDragging ? 'shadow-lg rotate-2 scale-105' : ''
-      } ${
-        isSelected ? 'ring-2 ring-primary border-primary' : 'border-border hover:border-primary-300'
-      } ${
-        isMultiSelectMode ? 'hover:ring-2 hover:ring-primary-300' : ''
-      }`}
+      className={`bg-surface border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${isDragging ? 'shadow-lg rotate-2 scale-105' : ''
+        } ${isSelected ? 'ring-2 ring-primary border-primary' : 'border-border hover:border-primary-300'
+        } ${isMultiSelectMode ? 'hover:ring-2 hover:ring-primary-300' : ''
+        }`}
     >
       {/* Card Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center space-x-2">
           {isMultiSelectMode && (
-            <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-              isSelected ? 'bg-primary border-primary' : 'border-secondary-300'
-            }`}>
+            <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${isSelected ? 'bg-primary border-primary' : 'border-secondary-300'
+              }`}>
               {isSelected && <Icon name="Check" size={12} color="white" />}
             </div>
           )}
@@ -94,9 +90,8 @@ const KanbanCard = ({
 
       {/* Due Date - Only if exists */}
       {task.dueDate && (
-        <div className={`flex items-center space-x-1 mb-3 text-xs ${
-          isOverdue ? 'text-error' : 'text-text-secondary'
-        }`}>
+        <div className={`flex items-center space-x-1 mb-3 text-xs ${isOverdue ? 'text-error' : 'text-text-secondary'
+          }`}>
           <Icon name="Calendar" size={12} />
           <span>{new Date(task.dueDate).toLocaleDateString()}</span>
           {isOverdue && <Icon name="AlertCircle" size={12} color="var(--color-error)" />}
@@ -107,23 +102,31 @@ const KanbanCard = ({
       <div className="flex items-center justify-between">
         {/* Assignee */}
         <div className="flex items-center space-x-2">
-          {task.assignee.avatar ? (
-            <Image
-              src={task.assignee.avatar}
-              alt={task.assignee.name}
-              className="w-6 h-6 rounded-full object-cover"
-            />
+          {task.assignee ? (
+            <>
+              {task.assignee.avatar ? (
+                <Image
+                  src={task.assignee.avatar}
+                  alt={task.assignee.name}
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-medium text-primary-700">
+                    {task.assignee.initials}
+                  </span>
+                </div>
+              )}
+              {viewMode === 'detailed' && (
+                <span className="text-xs text-text-secondary truncate max-w-20">
+                  {task.assignee.name}
+                </span>
+              )}
+            </>
           ) : (
-            <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center">
-              <span className="text-xs font-medium text-primary-700">
-                {task.assignee.initials}
-              </span>
+            <div className="w-6 h-6 bg-secondary-100 rounded-full flex items-center justify-center">
+              <Icon name="User" size={12} color="#64748B" />
             </div>
-          )}
-          {viewMode === 'detailed' && (
-            <span className="text-xs text-text-secondary truncate max-w-20">
-              {task.assignee.name}
-            </span>
           )}
         </div>
 

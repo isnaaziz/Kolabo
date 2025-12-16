@@ -62,6 +62,19 @@ const PendingInvitations = ({
                       <Icon name="RefreshCw" size={12} className="mr-1" />
                       Resend
                     </button>
+                    {inv.token && (
+                      <button
+                        onClick={() => {
+                          const link = `${window.location.origin}/accept-invite?token=${inv.token}`;
+                          navigator.clipboard.writeText(link);
+                          alert('Link copied to clipboard');
+                        }}
+                        className="px-3 py-1 ml-2 text-secondary-600 border border-secondary-300 rounded-lg hover:bg-secondary-50 flex items-center"
+                        title="Copy Link (Dev)"
+                      >
+                        <Icon name="Link" size={12} />
+                      </button>
+                    )}
                     <button
                       onClick={() => onRevoke(inv.id)}
                       className="px-3 py-1 text-error border border-error rounded-lg hover:bg-error-50 flex items-center"

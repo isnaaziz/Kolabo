@@ -29,7 +29,8 @@ const TeamManagement = () => {
     updateRole,
     removeMember,
     refreshMembers,
-    refreshInvites
+    refreshInvites,
+    resendInvite
   } = useTeam();
 
   // Hitung jumlah yang dipakai stats agar tidak dihitung berulang
@@ -92,8 +93,8 @@ const TeamManagement = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`relative px-4 py-2 rounded-t-lg text-sm font-medium transition-colors group ${activeTab === tab.id
-                    ? 'text-primary bg-primary-50'
-                    : 'text-text-secondary hover:text-text-primary'
+                  ? 'text-primary bg-primary-50'
+                  : 'text-text-secondary hover:text-text-primary'
                   }`}
               >
                 <span>{tab.label}</span>
@@ -120,7 +121,7 @@ const TeamManagement = () => {
                 invites={invites}
                 loading={loadingInvites}
                 onRevoke={revokeInvite}
-                onResend={(id) => console.log('Resend placeholder', id)}
+                onResend={resendInvite}
               />
             )}
             {activeTab === 'activity' && <ActivityLog />}

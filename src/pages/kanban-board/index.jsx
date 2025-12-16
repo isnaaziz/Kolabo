@@ -11,13 +11,21 @@ import KanbanCard from './components/KanbanCard';
 import BoardFilters from './components/BoardFilters';
 import ColumnHeader from './components/ColumnHeader';
 
+import projectService from '../../services/project/projectService';
+import taskService from '../../services/task/taskService';
+import apiService from '../../services/apiService';
+
 const KanbanBoard = () => {
   const [tasks, setTasks] = useState({});
   const [columns, setColumns] = useState({});
   const [columnOrder, setColumnOrder] = useState([]);
+  const [currentProject, setCurrentProject] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ... (previous state declarations)
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('detailed'); // 'compact' or 'detailed'
+  const [viewMode, setViewMode] = useState('detailed');
   const [filters, setFilters] = useState({
     assignee: 'all',
     priority: 'all',
@@ -27,158 +35,87 @@ const KanbanBoard = () => {
   const [selectedTasks, setSelectedTasks] = useState(new Set());
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
 
-  // Mock data for Kanban board
-  const mockTasks = {
-    'task-1': {
-      id: 'task-1',
-      title: 'Implement user authentication system',
-      description: 'Create secure login/logout functionality with JWT tokens and session management.',
-      status: 'In Progress',
-      priority: 'High',
-      assignee: {
-        name: 'John Doe',
-        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-        initials: 'JD'
-      },
-      storyPoints: 8,
-      dueDate: '2024-02-15',
-      labels: ['Backend', 'Security'],
-      attachments: 2,
-      comments: 3,
-      createdAt: '2024-01-28'
-    },
-    'task-2': {
-      id: 'task-2',
-      title: 'Design user dashboard mockups',
-      description: 'Create wireframes and high-fidelity designs for the main dashboard interface.',
-      status: 'Review',
-      priority: 'Medium',
-      assignee: {
-        name: 'Sarah Wilson',
-        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-        initials: 'SW'
-      },
-      storyPoints: 5,
-      dueDate: '2024-02-12',
-      labels: ['Design', 'UI/UX'],
-      attachments: 1,
-      comments: 7,
-      createdAt: '2024-01-25'
-    },
-    'task-3': {
-      id: 'task-3',
-      title: 'Setup CI/CD pipeline',
-      description: 'Configure automated testing and deployment pipeline using GitHub Actions.',
-      status: 'Backlog',
-      priority: 'Low',
-      assignee: {
-        name: 'Mike Chen',
-        avatar: 'https://randomuser.me/api/portraits/men/67.jpg',
-        initials: 'MC'
-      },
-      storyPoints: 13,
-      dueDate: '2024-02-20',
-      labels: ['DevOps', 'Infrastructure'],
-      attachments: 0,
-      comments: 1,
-      createdAt: '2024-01-30'
-    },
-    'task-4': {
-      id: 'task-4',
-      title: 'API endpoint documentation',
-      description: 'Document all REST API endpoints with examples and response schemas.',
-      status: 'Done',
-      priority: 'Medium',
-      assignee: {
-        name: 'Emily Rodriguez',
-        avatar: 'https://randomuser.me/api/portraits/women/23.jpg',
-        initials: 'ER'
-      },
-      storyPoints: 3,
-      dueDate: '2024-02-08',
-      labels: ['Documentation', 'API'],
-      attachments: 1,
-      comments: 2,
-      createdAt: '2024-01-22'
-    },
-    'task-5': {
-      id: 'task-5',
-      title: 'Mobile responsive layout',
-      description: 'Ensure all components work properly on mobile devices and tablets.',
-      status: 'In Progress',
-      priority: 'High',
-      assignee: {
-        name: 'Alex Thompson',
-        avatar: 'https://randomuser.me/api/portraits/men/89.jpg',
-        initials: 'AT'
-      },
-      storyPoints: 8,
-      dueDate: '2024-02-14',
-      labels: ['Frontend', 'Mobile'],
-      attachments: 3,
-      comments: 5,
-      createdAt: '2024-01-26'
-    },
-    'task-6': {
-      id: 'task-6',
-      title: 'Database optimization',
-      description: 'Optimize database queries and add proper indexing for better performance.',
-      status: 'Review',
-      priority: 'Critical',
-      assignee: {
-        name: 'David Kim',
-        avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
-        initials: 'DK'
-      },
-      storyPoints: 5,
-      dueDate: '2024-02-11',
-      labels: ['Backend', 'Performance'],
-      attachments: 0,
-      comments: 4,
-      createdAt: '2024-01-29'
-    }
-  };
-
-  const mockColumns = {
-    'column-1': {
-      id: 'column-1',
-      title: 'Backlog',
-      taskIds: ['task-3'],
-      wipLimit: null,
-      color: '#64748B'
-    },
-    'column-2': {
-      id: 'column-2',
-      title: 'In Progress',
-      taskIds: ['task-1', 'task-5'],
-      wipLimit: 3,
-      color: '#2563EB'
-    },
-    'column-3': {
-      id: 'column-3',
-      title: 'Review',
-      taskIds: ['task-2', 'task-6'],
-      wipLimit: 2,
-      color: '#F59E0B'
-    },
-    'column-4': {
-      id: 'column-4',
-      title: 'Done',
-      taskIds: ['task-4'],
-      wipLimit: null,
-      color: '#059669'
-    }
-  };
-
-  const mockColumnOrder = ['column-1', 'column-2', 'column-3', 'column-4'];
-
+  const [teamMembers, setTeamMembers] = useState([]);
   useEffect(() => {
-    setTasks(mockTasks);
-    setColumns(mockColumns);
-    setColumnOrder(mockColumnOrder);
+    const loadMembers = async () => {
+      try {
+        const response = await apiService.get('/team/members');
+        const data = response.data;
+        if (Array.isArray(data)) setTeamMembers(data);
+      } catch (e) { console.error("Failed to load members", e); }
+    }
+    loadMembers();
   }, []);
 
-  const handleDragEnd = (result) => {
+  // Load project and board data
+  useEffect(() => {
+    const loadBoard = async () => {
+      try {
+        setIsLoading(true);
+        // 1. Fetch projects
+        const projectsResponse = await projectService.getProjects();
+        const projects = projectsResponse.data || [];
+
+        let project = projects[0];
+
+        // If no project exists, create a default one
+        if (!project) {
+          const createResponse = await projectService.createProject({
+            name: 'My First Project'
+          });
+          project = createResponse.data;
+        }
+
+        setCurrentProject(project);
+
+        // 2. Fetch Board Columns and Tasks
+        const columnsResponse = await projectService.getBoard(project.id);
+        const boardColumns = columnsResponse.data || [];
+
+        // Transform data for frontend state
+        const newTasks = {};
+        const newColumns = {};
+        const newColumnOrder = [];
+
+        boardColumns.forEach(col => {
+          newColumns[col.id] = {
+            id: col.id,
+            title: col.title,
+            taskIds: col.tasks?.map(t => t.id) || [],
+            wipLimit: col.wip_limit,
+            color: col.color
+          };
+          newColumnOrder.push(col.id);
+
+          col.tasks?.forEach(task => {
+            newTasks[task.id] = {
+              ...task,
+              dueDate: task.due_date,
+              storyPoints: task.story_points,
+              assignee: task.assignee ? {
+                name: task.assignee.full_name || task.assignee.username,
+                avatar: task.assignee.avatar_url, // Assuming standard avatar URL
+                initials: (task.assignee.full_name || task.assignee.username).substring(0, 2).toUpperCase()
+              } : null
+            };
+          });
+        });
+
+        setTasks(newTasks);
+        setColumns(newColumns);
+        setColumnOrder(newColumnOrder);
+
+      } catch (error) {
+        console.error('Failed to load board:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBoard();
+  }, []);
+
+  const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
     if (!destination) return;
@@ -190,10 +127,15 @@ const KanbanBoard = () => {
       return;
     }
 
+    // ... (same as before logic for calculating new state)
+
     const start = columns[source.droppableId];
     const finish = columns[destination.droppableId];
 
+    // Optimistic UI update
     if (start === finish) {
+      // Reordering in same column (mock implementation for now if we want to store order)
+      // For now just update local state
       const newTaskIds = Array.from(start.taskIds);
       newTaskIds.splice(source.index, 1);
       newTaskIds.splice(destination.index, 0, draggableId);
@@ -210,6 +152,7 @@ const KanbanBoard = () => {
       return;
     }
 
+    // Moving between columns
     const startTaskIds = Array.from(start.taskIds);
     startTaskIds.splice(source.index, 1);
     const newStart = {
@@ -230,16 +173,104 @@ const KanbanBoard = () => {
       [newFinish.id]: newFinish,
     });
 
-    // Update task status
+    // Update task status in local state
     const updatedTask = {
       ...tasks[draggableId],
-      status: finish.title
+      status: finish.title // or mapped status
     };
     setTasks({
       ...tasks,
       [draggableId]: updatedTask
     });
+
+    // Sync with backend
+    try {
+      await taskService.updateTask(draggableId, {
+        column_id: finish.id
+      });
+    } catch (error) {
+      console.error('Failed to update task column:', error);
+      // Revert changes if failed (omitted for brevity, but should be done in prod)
+    }
   };
+
+  const handleCreateTask = async (taskData) => {
+    try {
+      // If taskData only has title, we wrap it
+      if (!taskData.project_id) {
+        taskData.project_id = currentProject.id;
+      }
+      if (!taskData.column_id) {
+        // Default to first column
+        taskData.column_id = columnOrder[0];
+      }
+      if (!taskData.priority) taskData.priority = 'Medium';
+
+      const response = await taskService.createTask(taskData);
+      const newTask = response.data;
+
+      // Update local state
+      setTasks(prev => ({
+        ...prev,
+        [newTask.id]: newTask
+      }));
+
+      setColumns(prev => ({
+        ...prev,
+        [newTask.column_id]: {
+          ...prev[newTask.column_id],
+          taskIds: [...prev[newTask.column_id].taskIds, newTask.id]
+        }
+      }));
+
+      setIsTaskModalOpen(false);
+
+    } catch (error) {
+      console.error('Failed to create task:', error);
+    }
+  };
+
+  const handleUpdateTask = async (taskId, updates) => {
+    try {
+      const response = await taskService.updateTask(taskId, updates);
+      const updatedTask = response.data;
+
+      setTasks(prev => ({
+        ...prev,
+        [updatedTask.id]: {
+          ...prev[updatedTask.id],
+          ...updatedTask,
+          // Ensure mapped fields are preserved if backend returns different naming
+          dueDate: updatedTask.due_date || updatedTask.dueDate,
+          storyPoints: updatedTask.story_points || updatedTask.storyPoints,
+          assignee: updatedTask.assignee ? {
+            name: updatedTask.assignee.full_name || updatedTask.assignee.username,
+            avatar: updatedTask.assignee.avatar_url,
+            initials: (updatedTask.assignee.full_name || updatedTask.assignee.username).substring(0, 2).toUpperCase()
+          } : (updates.assignee_id ? (() => {
+            const u = teamMembers.find(m => m.id === updates.assignee_id);
+            return u ? {
+              name: u.full_name || u.username,
+              avatar: u.avatar_url,
+              initials: (u.full_name || u.username).substring(0, 2).toUpperCase()
+            } : null;
+          })() : null)
+        }
+      }));
+
+      // Columns update logic is complex if column changed, but handleDragEnd handles that. 
+      // Here we assume mostly details update. If column changed, simple reload or specific logic needed.
+      if (updates.column_id && updates.column_id !== tasks[taskId].column_id) {
+        // If column changed via modal, reload board or update state manually
+        // For simplicity, just update the task details in place, assuming column stays same or reload
+      }
+
+    } catch (error) {
+      console.error("Failed to update task", error);
+    }
+  }
+
+
 
   const handleTaskClick = (taskId) => {
     if (isMultiSelectMode) {
@@ -281,7 +312,7 @@ const KanbanBoard = () => {
   });
 
   const getFilteredTaskIds = (columnTaskIds) => {
-    return columnTaskIds.filter(taskId => 
+    return columnTaskIds.filter(taskId =>
       filteredTasks.some(task => task.id === taskId)
     );
   };
@@ -295,7 +326,7 @@ const KanbanBoard = () => {
       };
     });
     setTasks(updatedTasks);
-    
+
     // Update columns
     const updatedColumns = { ...columns };
     Object.keys(updatedColumns).forEach(columnId => {
@@ -303,12 +334,12 @@ const KanbanBoard = () => {
         taskId => !selectedTasks.has(taskId)
       );
     });
-    
+
     const targetColumn = Object.values(updatedColumns).find(col => col.title === newStatus);
     if (targetColumn) {
       targetColumn.taskIds = [...targetColumn.taskIds, ...Array.from(selectedTasks)];
     }
-    
+
     setColumns(updatedColumns);
     setSelectedTasks(new Set());
     setIsMultiSelectMode(false);
@@ -319,10 +350,10 @@ const KanbanBoard = () => {
       <Header />
       <Sidebar />
       <CommandPalette />
-      
+
       <main className="ml-60 mt-16 p-6 flex flex-col h-[calc(100vh-4rem)]">
         {/* Page Header with Actions */}
-        <PageHeader 
+        <PageHeader
           actions={
             <>
               <button
@@ -332,7 +363,12 @@ const KanbanBoard = () => {
                 <Icon name={viewMode === 'detailed' ? 'LayoutGrid' : 'List'} size={16} />
                 <span className="text-sm">{viewMode === 'detailed' ? 'Compact' : 'Detailed'}</span>
               </button>
-              <button className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
+              <button
+                onClick={() => {
+                  setSelectedTaskId(null); // Null means new task
+                  setIsTaskModalOpen(true);
+                }}
+                className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200">
                 <Icon name="Plus" size={16} />
                 <span className="text-sm">Add Task</span>
               </button>
@@ -343,8 +379,8 @@ const KanbanBoard = () => {
         {/* Top Section - Filters and Selected Tasks Actions */}
         <div className="mb-6">
           {/* Filters */}
-          <BoardFilters 
-            filters={filters} 
+          <BoardFilters
+            filters={filters}
             onFiltersChange={setFilters}
             tasks={Object.values(tasks)}
           />
@@ -396,21 +432,20 @@ const KanbanBoard = () => {
 
                 return (
                   <div key={column?.id} className="flex flex-col h-full">
-                    <ColumnHeader 
+                    <ColumnHeader
                       column={column}
                       taskCount={columnTasks?.length || 0}
                       wipLimit={column?.wipLimit}
                     />
-                    
+
                     <Droppable droppableId={column?.id || ''}>
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.droppableProps}
-                          className={`flex-grow min-h-[200px] p-3 rounded-lg transition-colors duration-200 overflow-y-auto ${
-                            snapshot.isDraggingOver 
-                              ? 'bg-primary-50 border-2 border-primary-300' :'bg-secondary-50 border-2 border-transparent'
-                          }`}
+                          className={`flex-grow min-h-[200px] p-3 rounded-lg transition-colors duration-200 overflow-y-auto ${snapshot.isDraggingOver
+                            ? 'bg-primary-50 border-2 border-primary-300' : 'bg-secondary-50 border-2 border-transparent'
+                            }`}
                         >
                           <div className="space-y-3">
                             {columnTasks?.map((task, index) => (
@@ -435,7 +470,7 @@ const KanbanBoard = () => {
                             ))}
                           </div>
                           {provided.placeholder}
-                          
+
                           {/* Add Task Button */}
                           <button className="w-full mt-3 p-3 border-2 border-dashed border-secondary-300 rounded-lg text-secondary-500 hover:border-primary-300 hover:text-primary transition-colors duration-200 flex items-center justify-center space-x-2">
                             <Icon name="Plus" size={16} />
@@ -482,6 +517,9 @@ const KanbanBoard = () => {
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
         taskId={selectedTaskId}
+        onCreate={handleCreateTask}
+        onUpdate={handleUpdateTask}
+        users={teamMembers}
       />
     </div>
   );

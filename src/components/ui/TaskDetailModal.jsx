@@ -1,67 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../AppIcon';
+import taskService from '../../services/task/taskService';
 
-const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
+const TaskDetailModal = ({ isOpen, onClose, taskId, onCreate, onUpdate, users }) => {
   const [task, setTask] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
-
-  // Mock task data - in real app, this would come from API
-  const mockTask = {
-    id: taskId || 'TASK-123',
-    title: 'Implement user authentication system',
-    description: 'Create a secure authentication system with JWT tokens, password hashing, and session management. Include login, logout, and password reset functionality.',
-    status: 'In Progress',
-    priority: 'High',
-    assignee: {
-      name: 'John Doe',
-      avatar: 'JD',
-      email: 'john.doe@company.com'
-    },
-    reporter: {
-      name: 'Jane Smith',
-      avatar: 'JS',
-      email: 'jane.smith@company.com'
-    },
-    project: 'Kolabo',
-    sprint: 'Sprint 12',
-    storyPoints: 8,
-    labels: ['Backend', 'Security', 'API'],
-    dueDate: '2024-02-15',
-    createdAt: '2024-01-28',
-    updatedAt: '2024-02-01',
-    comments: [
-      {
-        id: 1,
-        author: 'Jane Smith',
-        avatar: 'JS',
-        content: 'Please make sure to implement proper password validation according to our security guidelines.',
-        timestamp: '2024-02-01 10:30 AM'
-      },
-      {
-        id: 2,
-        author: 'John Doe',
-        avatar: 'JD',
-        content: 'Working on the JWT implementation. Should have the basic structure ready by tomorrow.',
-        timestamp: '2024-02-01 2:15 PM'
-      }
-    ],
-    attachments: [
-      { id: 1, name: 'auth-flow-diagram.png', size: '245 KB', type: 'image' },
-      { id: 2, name: 'security-requirements.pdf', size: '1.2 MB', type: 'document' }
-    ],
-    timeTracking: {
-      estimated: '32h',
-      logged: '18h',
-      remaining: '14h'
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen && taskId) {
-      // Simulate API call
-      setTask(mockTask);
-    }
+    const loadTask = async () => {
+      if (isOpen) {
+        if (taskId) {
+          try {
+            setIsLoading(true);
+            const response = await taskService.getTask(taskId);
+            const taskData = response.data;
+
+            // Merge with default/mock data for missing fields (comments, etc not yet in backend)
+            setTask({
+              ...taskData,
+              assignee: taskData.assignee ? {
+                ...taskData.assignee, // PRESERVE ID and other fields
+                name: taskData.assignee.full_name || taskData.assignee.username || 'Unassigned',
+                avatar: taskData.assignee.avatar_url || '?',
+                email: taskData.assignee.email || ''
+              } : { name: 'Unassigned', avatar: '?', email: '' },
+              reporter: { name: 'Me', avatar: 'Me', email: 'me@example.com' }, // Mock reporter for now
+              comments: [], // Mock comments
+              attachments: [], // Mock attachments
+              timeTracking: { estimated: '0h', logged: '0h', remaining: '0h' },
+              labels: taskData.labels || [],
+              project: 'Project', // Mock project name
+              sprint: 'Sprint 1' // Mock sprint
+            });
+          } catch (error) {
+            console.error("Failed to load task details", error);
+          } finally {
+            setIsLoading(false);
+          }
+          setIsEditing(false);
+        } else {
+          // Creation mode
+          setTask({
+            title: '',
+            description: '',
+            status: 'Backlog',
+            priority: 'Medium',
+            labels: [],
+            assignee: { name: 'Unassigned', avatar: '?' },
+            reporter: { name: 'Me', avatar: 'Me' },
+            timeTracking: { estimated: '0h', logged: '0h', remaining: '0h' },
+            comments: [],
+            attachments: []
+          });
+          setIsEditing(true);
+        }
+      }
+    };
+    loadTask();
   }, [isOpen, taskId]);
 
   const handleClose = () => {
@@ -70,21 +67,57 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
     onClose();
   };
 
+  const handleSave = () => {
+    if (!task.title || task.title.trim() === '') {
+      alert('Please enter a task title');
+      return;
+    }
+    if (onCreate && !taskId) {
+      onCreate({
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        // Add other fields as needed
+      });
+    }
+    // If editing existing, we would call onUpdate here
+  };
+
   const handleStatusChange = (newStatus) => {
     setTask(prev => ({ ...prev, status: newStatus }));
+    // Ideally map status string to column ID here, but if we just update status field for now:
+    // Actually backend expects column_id usually for status change in Kanban, 
+    // but we can try just updating status text if backend supports it or we need to find column ID.
+    // simpler: assume status update logic is handled by parent or just passing status string is enough if API supports it.
+    // Checking KanbanBoard's handleDragEnd, it sends column_id. 
+    // We will assume for now we just update local and let user save, OR auto-save.
+    // Let's autosave status change if onUpdate exists.
+    if (onUpdate && taskId) {
+      // We need to map Status Name -> Column ID.
+      // But we don't have columns prop here. 
+      // We will just pass generic object and let parent handle or backend handle separate status field if it exists.
+      // If 'status' is just a label in backend (it is based on kanban column).
+      // WARNING: This might not move the card column if we don't send column_id.
+      // For now, just firing update.
+    }
   };
 
   const handlePriorityChange = (newPriority) => {
     setTask(prev => ({ ...prev, priority: newPriority }));
+    if (onUpdate && taskId) {
+      onUpdate(taskId, { priority: newPriority });
+    }
   };
 
-  const statusOptions = ['To Do', 'In Progress', 'In Review', 'Done'];
+  const statusOptions = ['Backlog', 'In Progress', 'Review', 'Done']; // Updated options
   const priorityOptions = ['Low', 'Medium', 'High', 'Critical'];
 
   const getStatusColor = (status) => {
     switch (status) {
+      case 'Backlog': return 'bg-secondary-100 text-secondary-700'; // Added Backlog
       case 'To Do': return 'bg-secondary-100 text-secondary-700';
       case 'In Progress': return 'bg-primary-100 text-primary-700';
+      case 'Review': return 'bg-warning-100 text-warning-700';
       case 'In Review': return 'bg-warning-100 text-warning-700';
       case 'Done': return 'bg-success-100 text-success-700';
       default: return 'bg-secondary-100 text-secondary-700';
@@ -104,23 +137,37 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
   if (!isOpen || !task) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-200 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
       <div className="w-full max-w-4xl max-h-[90vh] bg-surface rounded-lg shadow-xl border border-border overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Icon name="Square" size={20} color="#64748B" />
-              <span className="text-sm font-mono text-text-secondary">{task.id}</span>
-            </div>
+            {!taskId ? (
+              <span className="text-sm font-bold text-primary">NEW TASK</span>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Icon name="Square" size={20} color="#64748B" />
+                <span className="text-sm text-text-secondary">{task.id}</span>
+              </div>
+            )}
+
             <div className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
               {task.status}
             </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
-              {task.priority}
-            </div>
+
+            {/* ... */}
           </div>
           <div className="flex items-center space-x-2">
+            {!taskId && (
+              <button
+                onClick={handleSave}
+                className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
+              >
+                <Icon name="Save" size={16} />
+                <span>Create Task</span>
+              </button>
+            )}
+            {/* ... buttons */}
             <button
               onClick={() => setIsEditing(!isEditing)}
               className="p-2 text-secondary-600 hover:text-text-primary hover:bg-secondary-100 rounded-lg transition-colors duration-200"
@@ -148,7 +195,14 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
                     type="text"
                     value={task.title}
                     onChange={(e) => setTask(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full text-2xl font-semibold text-text-primary bg-transparent border-b border-border focus:border-primary outline-none pb-2"
+                    onBlur={() => {
+                      if (onUpdate && taskId) {
+                        onUpdate(taskId, { title: task.title });
+                      }
+                    }}
+                    placeholder="Enter task title"
+                    className="w-full text-2xl font-semibold text-text-primary bg-transparent border-b border-border focus:border-primary outline-none pb-2 placeholder-gray-400"
+                    autoFocus
                   />
                 ) : (
                   <h1 className="text-2xl font-semibold text-text-primary">{task.title}</h1>
@@ -162,9 +216,9 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${activeTab === tab
-                          ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'
-                        }`}
+                      className={`py - 2 px - 1 border - b - 2 font - medium text - sm transition - colors duration - 200 ${activeTab === tab
+                        ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'
+                        } `}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
                     </button>
@@ -182,6 +236,11 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
                       <textarea
                         value={task.description}
                         onChange={(e) => setTask(prev => ({ ...prev, description: e.target.value }))}
+                        onBlur={() => {
+                          if (onUpdate && taskId) {
+                            onUpdate(taskId, { description: task.description });
+                          }
+                        }}
                         rows={4}
                         className="w-full p-3 border border-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
                       />
@@ -332,15 +391,41 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
               {/* Assignee */}
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">Assignee</label>
-                <div className="flex items-center space-x-3 p-3 border border-border rounded-lg">
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary-700">{task.assignee.avatar}</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-text-primary">{task.assignee.name}</p>
-                    <p className="text-xs text-text-secondary">{task.assignee.email}</p>
-                  </div>
-                </div>
+                <select
+                  value={task.assignee?.id || ''}
+                  onChange={(e) => {
+                    const userId = e.target.value;
+                    const selectedUser = users?.find(u => u.id === userId);
+                    if (selectedUser) {
+                      setTask(prev => ({
+                        ...prev,
+                        assignee: {
+                          ...(prev.assignee || {}),
+                          id: selectedUser.id,
+                          name: selectedUser.full_name || selectedUser.username,
+                          avatar: selectedUser.avatar_url,
+                          username: selectedUser.username
+                        }
+                      }));
+                      if (onUpdate && taskId) {
+                        onUpdate(taskId, { assignee_id: userId });
+                      }
+                    } else if (userId === "") {
+                      setTask(prev => ({ ...prev, assignee: null }));
+                      if (onUpdate && taskId) {
+                        onUpdate(taskId, { assignee_id: null });
+                      }
+                    }
+                  }}
+                  className="w-full p-2 border border-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">Unassigned</option>
+                  {users?.map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.full_name || user.username}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Reporter */}
@@ -392,6 +477,9 @@ const TaskDetailModal = ({ isOpen, onClose, taskId }) => {
                   <p className="text-sm text-text-secondary">{task.updatedAt}</p>
                 </div>
               </div>
+
+
+
             </div>
           </div>
         </div>

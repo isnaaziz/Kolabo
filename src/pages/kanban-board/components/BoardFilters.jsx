@@ -4,7 +4,7 @@ import Icon from '../../../components/AppIcon';
 const BoardFilters = ({ filters, onFiltersChange, tasks }) => {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
-  const uniqueAssignees = [...new Set(tasks.map(task => task.assignee.name))];
+  const uniqueAssignees = [...new Set(tasks.filter(task => task.assignee).map(task => task.assignee.name))];
   const uniquePriorities = ['Low', 'Medium', 'High', 'Critical'];
 
   const handleFilterChange = (filterType, value) => {
@@ -23,7 +23,7 @@ const BoardFilters = ({ filters, onFiltersChange, tasks }) => {
     });
   };
 
-  const activeFiltersCount = Object.values(filters).filter(value => 
+  const activeFiltersCount = Object.values(filters).filter(value =>
     value !== 'all' && value !== ''
   ).length;
 
@@ -33,11 +33,11 @@ const BoardFilters = ({ filters, onFiltersChange, tasks }) => {
       <div className="flex items-center space-x-4 mb-4">
         {/* Search */}
         <div className="flex-1 relative">
-          <Icon 
-            name="Search" 
-            size={16} 
-            color="#64748B" 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2" 
+          <Icon
+            name="Search"
+            size={16}
+            color="#64748B"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2"
           />
           <input
             type="text"
@@ -60,10 +60,9 @@ const BoardFilters = ({ filters, onFiltersChange, tasks }) => {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
-            className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 ${
-              isFiltersExpanded || activeFiltersCount > 0
-                ? 'bg-primary text-white' :'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-            }`}
+            className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors duration-200 ${isFiltersExpanded || activeFiltersCount > 0
+                ? 'bg-primary text-white' : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+              }`}
           >
             <Icon name="Filter" size={16} />
             <span className="text-sm">Filters</span>
@@ -156,7 +155,7 @@ const BoardFilters = ({ filters, onFiltersChange, tasks }) => {
               </button>
             </div>
           )}
-          
+
           {filters.priority !== 'all' && (
             <div className="flex items-center space-x-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
               <span>Priority: {filters.priority}</span>
@@ -168,7 +167,7 @@ const BoardFilters = ({ filters, onFiltersChange, tasks }) => {
               </button>
             </div>
           )}
-          
+
           {filters.sprint !== 'all' && (
             <div className="flex items-center space-x-2 px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm">
               <span>Sprint: {filters.sprint}</span>

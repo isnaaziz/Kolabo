@@ -61,6 +61,15 @@ class TeamService {
         }
     }
 
+    async resendInvite(inviteId) {
+        try {
+            const response = await apiClient.post('/team/invite/resend', { inviteId });
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
     async acceptInvite(payload) {
         try {
             const response = await apiClient.post('/team/invite/accept', payload);
